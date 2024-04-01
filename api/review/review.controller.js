@@ -4,6 +4,7 @@ import { userService } from '../user/user.service.js'
 import { authService } from '../auth/auth.service.js'
 import { reviewService } from './review.service.js'
 import { utilService } from '../../services/util.service.js'
+import { toyService } from '../toy/toy.service.js'
 
 export async function getReviews(req, res) {
     try {
@@ -40,10 +41,13 @@ export async function addReview(req, res) {
         var review = req.body
         review.userId = loggedinUser._id
         review.txt = "test"
+
+        console.log("🚀 ~ addReview-controller ~ review:", review)
         review = await reviewService.add(review)
+        console.log("🚀 ~ addReview-after servie ~ review:", review)
 
         // prepare the updated review for sending out
-        review.aboutToy = await userService.getById(review.toyId)
+        review.toyId = await toyService.getById(review.toyId)
 
         // Give the user credit for adding a review
         // var user = await userService.getById(review.byUserId)
@@ -51,7 +55,7 @@ export async function addReview(req, res) {
         // loggedinUser.score += 10
 
         loggedinUser = await userService.update(loggedinUser)
-        review.byUser = loggedinUser
+        review.userId = loggedinUser
 
         // User info is saved also in the login-token, update it
         const loginToken = authService.getLoginToken(loggedinUser)
