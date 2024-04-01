@@ -41,7 +41,7 @@ async function query(filterBy = {}) {
         // console.log(reviews);
         reviews = reviews.map(review => {
             review.byUser = { _id: review.byUser._id, fullname: review.byUser.fullname }
-            review.aboutToy = { _id: review.aboutToy._id, name: review.aboutToy.name }
+            review.aboutToy = { _id: review.aboutToy._id, name: review.aboutToy.name, price: review.aboutToy.price }
             // review.aboutUser = { _id: review.aboutUser._id, fullname: review.aboutUser.fullname }
             delete review.byUser._id
             delete review.aboutToy._id
@@ -65,7 +65,7 @@ async function remove(reviewId) {
         const collection = await dbService.getCollection('review')
         // remove only if user is owner/admin
         const criteria = { _id: ObjectId(reviewId) }
-        if (!loggedinUser.isAdmin) criteria.byUser = ObjectId(loggedinUser._id)
+        if (!loggedinUser.isAdmin) criteria.userId = ObjectId(loggedinUser._id)
         const { deletedCount } = await collection.deleteOne(criteria)
         return deletedCount
     } catch (err) {
@@ -76,18 +76,17 @@ async function remove(reviewId) {
 
 
 async function add(review) {
+    console.log({ review });
     try {
         const reviewToAdd = {
             userId: ObjectId(review.userId),
             toyId: ObjectId(review.toyId),
             txt: review.txt
         }
-        console.log("🚀 ~ add inside try --> ~ reviewToAdd:", reviewToAdd)
-
 
         const collection = await dbService.getCollection('review')
         await collection.insertOne(reviewToAdd)
-        console.log('reviewToAdd -> ', reviewToAdd)
+        console.log('reviewToAdd -> (service)', reviewToAdd)
         return reviewToAdd
     } catch (err) {
         logger.error('cannot insert review', err)

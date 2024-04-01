@@ -32,43 +32,35 @@ export async function deleteReview(req, res) {
 
 
 export async function addReview(req, res) {
-
+    console.log('COntenerteort');
     var { loggedinUser } = req
-    console.log("🚀 ~ addReview ~ loggedinUser:", loggedinUser)
-    console.log("🚀 ~ addReview ~ req.body:", req.body)
+    console.log("🚀 ~ addReview ~ loggedinUser: (controller)", loggedinUser)
 
     try {
         var review = req.body
         review.userId = loggedinUser._id
-        review.txt = "test"
 
-        console.log("🚀 ~ addReview-controller ~ review:", review)
         review = await reviewService.add(review)
         console.log("🚀 ~ addReview-after servie ~ review:", review)
 
         // prepare the updated review for sending out
-        review.toyId = await toyService.getById(review.toyId)
+        // review.toyId = await toyService.getById(review.toyId)
 
-        // Give the user credit for adding a review
-        // var user = await userService.getById(review.byUserId)
-        // user.score += 10
-        // loggedinUser.score += 10
-
-        loggedinUser = await userService.update(loggedinUser)
-        review.userId = loggedinUser
 
         // User info is saved also in the login-token, update it
         const loginToken = authService.getLoginToken(loggedinUser)
         res.cookie('loginToken', loginToken)
 
-        delete review.toyId
-        delete review.userId
 
-        socketService.broadcast({ type: 'review-added', data: review, userId: loggedinUser._id })
-        socketService.emitToUser({ type: 'review-about-you', data: review, userId: review.aboutToy._id })
+        //* Sockets
+        // delete review.toyId
+        // delete review.userId
 
-        const fullUser = await userService.getById(loggedinUser._id)
-        socketService.emitTo({ type: 'user-updated', data: fullUser, label: fullUser._id })
+        // socketService.broadcast({ type: 'review-added', data: review, userId: loggedinUser._id })
+        // socketService.emitToUser({ type: 'review-about-you', data: review, userId: review.aboutToy._id })
+
+        // const fullUser = await userService.getById(loggedinUser._id)
+        // socketService.emitTo({ type: 'user-updated', data: fullUser, label: fullUser._id })
 
         res.send(review)
 
