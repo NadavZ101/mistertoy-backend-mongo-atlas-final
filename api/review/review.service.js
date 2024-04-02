@@ -44,7 +44,7 @@ async function query(filterBy = {}) {
             review.aboutToy = { _id: review.aboutToy._id, name: review.aboutToy.name, price: review.aboutToy.price }
             // review.aboutUser = { _id: review.aboutUser._id, fullname: review.aboutUser.fullname }
             delete review.byUser._id
-            delete review.aboutToy._id
+            // delete review.aboutToy._id
             delete review.userId
             delete review.toyId
             console.log('review ---> ', review)
